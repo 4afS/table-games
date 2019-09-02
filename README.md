@@ -1,5 +1,9 @@
 # Table games
 
 Table games in Elm.
+<<<<<<< HEAD
 Fun!
-From mydevelop
+=======
+
+mydevelop
+>>>>>>> remotes/upstream/develop
