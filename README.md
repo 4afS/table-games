@@ -1,3 +1,3 @@
-# elm_scss_template
+# Table games
 
-template for using elm and scss
+Table games in Elm.
