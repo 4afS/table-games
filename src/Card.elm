@@ -1,5 +1,7 @@
 module Card exposing (..)
 
+import Util
+
 
 type alias Card =
     { suit : Suit
@@ -55,3 +57,8 @@ suits =
     , Club
     , Heart
     ]
+
+
+generateDeck : List Card
+generateDeck =
+    Util.andThen suits <| \suit -> Util.andThen ranks <| \rank -> [ Card suit rank ]
