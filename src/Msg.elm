@@ -1,7 +1,8 @@
 module Msg exposing (..)
 
-import Types exposing (..)
 import Card exposing (..)
+import Types exposing (..)
+
 
 type Msg
     = ConstructDeck (List Card)
