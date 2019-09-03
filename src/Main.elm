@@ -24,7 +24,7 @@ main =
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { deck = generateDeck
-      , gameStatus = Init
+      , gameStates = Init
       , dealer = Dealer { hands = [], points = Points 0 }
       , player = Player { hands = [], points = Points 0 }
       }
@@ -42,6 +42,7 @@ update msg model =
             Cmd.none)
 
         Start ->
+
             let
                 initCard = List.take (2 * 2) model.deck
 
@@ -51,6 +52,21 @@ update msg model =
                 dealersDraw =
                     List.drop 2 initCard
 
+                calcPoints_ : Points -> Card -> Points
+                calcPoints_ point card =
+                    case point of
+                        Bust ->
+                            Bust
+
+                        Points c ->
+                            let
+                                rankPoint = fromRank card.rank
+                            in
+                                if rankPoint + c > 21 then
+                                    Bust
+                                else
+                                    Points rankPoint
+
                 calcPoints : Points -> List Card -> Points
                 calcPoints point cards =
                     case point of
@@ -58,23 +74,30 @@ update msg model =
                             Bust
 
                         Points p ->
-
-
+                            foldl calcPoints_ (Points p) cards
 
             in
                 ({ model |
                     deck = List.drop 4 model.deck
-                  , {dealer | hands = }
-
-
-
-                })
+                  , gameStates = Playing
+                  , { dealer |
+                      hands = List.append model.dealer.hands dealersDraw
+                    , points = calcPoints model.dealer.points dealersDraw
+                    }
+                  , { player |
+                      hands = List.append model.player.hands playersDraw
+                    , points = calcPoints model.player.points playersDraw
+                    }
+                }
+                , Cmd.none
+                )
 
         Hit ->
-
+            (model, Cmd.none)
         Stand ->
-
+            (model, Cmd.none)
         Reset ->
+            (model, Cmd.none)
 
 
 
