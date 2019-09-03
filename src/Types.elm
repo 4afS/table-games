@@ -1,6 +1,6 @@
 module Types exposing (..)
 
-import Card exposing (..)
+import Card exposing (Card)
 
 
 type alias Player =
