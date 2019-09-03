@@ -6,7 +6,7 @@ import Types exposing (..)
 
 type alias Model =
     { deck : List Card
-    , gameStatus : States
+    , gameStates : States
     , dealer : Player
     , player : Player
     }
