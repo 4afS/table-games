@@ -1,4 +1,5 @@
-module Card exposing (Card, Rank(..), Suit(..), rankToInt, fromSuit, generateDeck)
+module Card exposing (Card, Rank(..), Suit(..), generateDeck, rankToInt, rankToString, suitToInt, suitToString)
+
 
 import Util
 
@@ -107,8 +108,51 @@ rankToInt rank =
             10
 
 
-fromSuit : Suit -> Int
-fromSuit suit =
+rankToString : Rank -> String
+rankToString rank =
+    case rank of
+        Ace ->
+            "Ace"
+
+        Two ->
+            "Two"
+
+        Three ->
+            "Three"
+
+        Four ->
+            "Four"
+
+        Five ->
+            "Five"
+
+        Six ->
+            "Six"
+
+        Seven ->
+            "Seven"
+
+        Eight ->
+            "Eight"
+
+        Nine ->
+            "Nine"
+
+        Ten ->
+            "Ten"
+
+        Jack ->
+            "Jack"
+
+        Queen ->
+            "Queen"
+
+        King ->
+            "King"
+
+
+suitToInt : Suit -> Int
+suitToInt suit =
     case suit of
         Spade ->
             1
@@ -121,3 +165,19 @@ fromSuit suit =
 
         Heart ->
             4
+
+
+suitToString : Suit -> String
+suitToString suit =
+    case suit of
+        Spade ->
+            "Spade"
+
+        Diamond ->
+            "Diamond"
+
+        Club ->
+            "Club"
+
+        Heart ->
+            "Heart"

@@ -106,6 +106,52 @@ update msg model =
                 dealersDraw =
                     List.drop 2 initCard
 
+                calcPoints_ : Card -> Points -> Points
+                calcPoints_ card point =
+                    case point of
+                        Bust ->
+                            Bust
+
+                        Points c ->
+                            let
+                                rankPoint =
+                                    rankToInt card.rank
+                            in
+                            if rankPoint + c > 21 then
+                                Bust
+
+                            else
+                                Points rankPoint
+
+                calcPoints : Points -> List Card -> Points
+                calcPoints point cards =
+                    case point of
+                        Bust ->
+                            Bust
+
+                        Points p ->
+                            List.foldl calcPoints_ (Points p) cards
+
+                updateDealer : Player
+                updateDealer =
+                    let
+                        newDealer =
+                            { hands = List.append model.dealer.hands dealersDraw
+                            , points = calcPoints model.dealer.points dealersDraw
+                            }
+                    in
+                    newDealer
+
+                updatePlayer : Player
+                updatePlayer =
+                    let
+                        newPlayer =
+                            { hands = List.append model.player.hands playersDraw
+                            , points = calcPoints model.player.points playersDraw
+                            }
+                    in
+                    newPlayer
+
             in
             ( { model
                 | deck = List.drop 4 model.deck
@@ -201,4 +247,58 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    div [] [ text "test" ]
+    div
+        [ class "main" ]
+    <|
+        case model.gameStates of
+            Init ->
+                [ button
+                    [ onClick Start
+                    , class "start"
+                    ]
+                    [ text "Start!" ]
+                ]
+
+            Playing ->
+                [ button
+                    [ onClick Hit
+                    , class "hit"
+                    ]
+                    [ text "Hit" ]
+                , button
+                    [ onClick Stand
+                    , class "stand"
+                    ]
+                    [ text "Stand" ]
+                , text <| "Player : " ++ rankOfHandsToString model.player.hands
+                , text <| "Dealer : " ++ rankOfHandsToString model.dealer.hands
+                ]
+
+            Finish judge ->
+                [ button
+                    [ onClick Reset
+                    , class "reset"
+                    ]
+                    [ text "Reset" ]
+                , text <| "You" ++ judgeToString judge
+                ]
+
+
+rankOfHandsToString : List Card -> String
+rankOfHandsToString hands =
+    List.map .rank hands
+        |> List.map rankToString
+        |> String.join " "
+
+
+judgeToString : Judge -> String
+judgeToString judge =
+    case judge of
+        Win ->
+            "Win"
+
+        Draw ->
+            "Draw"
+
+        Lose ->
+            "Lose"
