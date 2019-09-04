@@ -1,6 +1,5 @@
 module Card exposing (Card, Rank(..), Suit(..), generateDeck, rankToInt, rankToString, suitToInt, suitToString)
 
-
 import Util
 
 
