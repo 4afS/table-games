@@ -106,52 +106,6 @@ update msg model =
                 dealersDraw =
                     List.drop 2 initCard
 
-                calcPoints_ : Card -> Points -> Points
-                calcPoints_ card point =
-                    case point of
-                        Bust ->
-                            Bust
-
-                        Points c ->
-                            let
-                                rankPoint =
-                                    rankToInt card.rank
-                            in
-                            if rankPoint + c > 21 then
-                                Bust
-
-                            else
-                                Points rankPoint
-
-                calcPoints : Points -> List Card -> Points
-                calcPoints point cards =
-                    case point of
-                        Bust ->
-                            Bust
-
-                        Points p ->
-                            List.foldl calcPoints_ (Points p) cards
-
-                updateDealer : Player
-                updateDealer =
-                    let
-                        newDealer =
-                            { hands = List.append model.dealer.hands dealersDraw
-                            , points = calcPoints model.dealer.points dealersDraw
-                            }
-                    in
-                    newDealer
-
-                updatePlayer : Player
-                updatePlayer =
-                    let
-                        newPlayer =
-                            { hands = List.append model.player.hands playersDraw
-                            , points = calcPoints model.player.points playersDraw
-                            }
-                    in
-                    newPlayer
-
             in
             ( { model
                 | deck = List.drop 4 model.deck
@@ -189,7 +143,7 @@ update msg model =
                     case currentPoints of
                         Points p ->
                             if p < 17 then
-                                dealDraw (List.append cards <| List.take 1 deck) <| tailwithDefault deck
+                                dealDraw tailwithDefault deck <| (List.append cards <| List.take 1 deck)
                             else
                                 cards
                         Bust ->
