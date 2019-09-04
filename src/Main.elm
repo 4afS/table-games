@@ -2,6 +2,8 @@ module Main exposing (init, main)
 
 import Html exposing (..)
 import Browser exposing (..)
+import Card exposing (..)
+import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import List
@@ -44,7 +46,7 @@ update msg model =
             ( model, generate ConstructDeck (shuffle model.deck) )
 
         ConstructDeck shuffledDeck ->
-            ({ model
+            ( { model
                 | deck = shuffledDeck
             }
             , Cmd.none)
@@ -122,6 +124,67 @@ update msg model =
 
 
 
+
+        Start ->
+            let
+                initCard =
+                    List.take (2 * 2) model.deck
+
+                playersDraw =
+                    List.take 2 initCard
+
+                dealersDraw =
+                    List.drop 2 initCard
+
+                calcPoints_ : Points -> Card -> Points
+                calcPoints_ point card =
+                    case point of
+                        Bust ->
+                            Bust
+
+                        Points c ->
+                            let
+                                rankPoint =
+                                    fromRank card.rank
+                            in
+                            if rankPoint + c > 21 then
+                                Bust
+
+                            else
+                                Points rankPoint
+
+                calcPoints : Points -> List Card -> Points
+                calcPoints point cards =
+                    case point of
+                        Bust ->
+                            Bust
+
+                        Points p ->
+                            List.foldl calcPoints_ (Points p) cards
+            in
+            ( { model
+                | deck = List.drop 4 model.deck
+                , gameStates = Playing
+                , dealer =
+                    Dealer <|
+                        List.append model.dealer.hands dealersDraw <|
+                            calcPoints model.dealer.points dealersDraw
+                , player =
+                    Player <|
+                        List.append model.player.hands playersDraw <|
+                            calcPoints model.player.points playersDraw
+              }
+            , Cmd.none
+            )
+
+        Hit ->
+            ( model, Cmd.none )
+
+        Stand ->
+            ( model, Cmd.none )
+
+        Reset ->
+            ( model, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
