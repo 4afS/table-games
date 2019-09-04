@@ -1,4 +1,4 @@
-module Card exposing (Card, Rank, Suit, fromRank, fromSuit, generateDeck)
+module Card exposing (Card, Rank(..), Suit(..), rankToInt, fromSuit, generateDeck)
 
 import Util
 
@@ -64,8 +64,8 @@ generateDeck =
     Util.andThen suits <| \suit -> Util.andThen ranks <| \rank -> [ Card suit rank ]
 
 
-fromRank : Rank -> Int
-fromRank rank =
+rankToInt : Rank -> Int
+rankToInt rank =
     case rank of
         Ace ->
             1
