@@ -4,7 +4,8 @@ import Types exposing (..)
 import Card exposing (..)
 
 type Msg
-    = ConstructDeck (List Card)
+    = Shuffle
+    | ConstructDeck (List Card)
     | Start
     | Hit
     | Stand

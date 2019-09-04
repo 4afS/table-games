@@ -1,14 +1,19 @@
 module Main exposing (init, main)
 
+import Html exposing (..)
 import Browser exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import List
 import Model exposing (..)
 import Msg exposing (..)
+import Random exposing (..)
 import Random.List exposing (..)
 import String
 import Types exposing (..)
+import Card exposing (..)
+
+
 
 
 main : Program () Model Msg
@@ -23,23 +28,26 @@ main =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { deck = generateDeck
-      , gameStates = Init
-      , dealer = Dealer { hands = [], points = Points 0 }
-      , player = Player { hands = [], points = Points 0 }
-      }
-    , shuffle model.deck |> generate ConstructDeck
+    ( { dealer = { hands = [], points = Points 0 }
+    , deck = generateDeck
+    , gameStates = Init
+    , player = { hands = [], points = Points 0 }
+    }
+    , Cmd.map (always Shuffle) Cmd.none
     )
-
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        
+        Shuffle ->
+            ( model, generate ConstructDeck (shuffle model.deck) )
+
         ConstructDeck shuffledDeck ->
             ({ model
                 | deck = shuffledDeck
             }
-            Cmd.none)
+            , Cmd.none)
 
         Start ->
 
@@ -52,8 +60,8 @@ update msg model =
                 dealersDraw =
                     List.drop 2 initCard
 
-                calcPoints_ : Points -> Card -> Points
-                calcPoints_ point card =
+                calcPoints_ : Card -> Points -> Points
+                calcPoints_ card point =
                     case point of
                         Bust ->
                             Bust
@@ -74,20 +82,33 @@ update msg model =
                             Bust
 
                         Points p ->
-                            foldl calcPoints_ (Points p) cards
+                            List.foldl calcPoints_ (Points p) cards
+
+
+                updateDealer : Player
+                updateDealer =
+                    let
+                        newDealer = { hands = List.append model.dealer.hands dealersDraw
+                                    , points = calcPoints model.dealer.points dealersDraw
+                                    }
+                    in
+                        newDealer
+
+                updatePlayer : Player
+                updatePlayer =
+                    let
+                        newPlayer = { hands = List.append model.player.hands playersDraw
+                                    , points = calcPoints model.player.points playersDraw
+                                    }
+                    in
+                        newPlayer
 
             in
                 ({ model |
                     deck = List.drop 4 model.deck
                   , gameStates = Playing
-                  , { dealer |
-                      hands = List.append model.dealer.hands dealersDraw
-                    , points = calcPoints model.dealer.points dealersDraw
-                    }
-                  , { player |
-                      hands = List.append model.player.hands playersDraw
-                    , points = calcPoints model.player.points playersDraw
-                    }
+                  , dealer = updateDealer
+                  , player = updatePlayer
                 }
                 , Cmd.none
                 )
@@ -104,6 +125,9 @@ update msg model =
 
 
 subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
 
 
 view : Model -> Html Msg
+view model = div [] [text "test"]
