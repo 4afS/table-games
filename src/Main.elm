@@ -6,13 +6,13 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import List
+import Maybe exposing (..)
 import Model exposing (..)
 import Msg exposing (..)
 import Random exposing (..)
 import Random.List exposing (..)
 import String
 import Types exposing (..)
-import Maybe exposing (..)
 
 
 main : Program () Model Msg
@@ -51,7 +51,8 @@ calcPoints_ card point =
                 Bust
 
             else
-                Points rankPoint
+                Points <| rankPoint + c
+
 
 calcPoints : Points -> List Card -> Points
 calcPoints point cards =
@@ -61,6 +62,7 @@ calcPoints point cards =
 
         Points p ->
             List.foldl calcPoints_ (Points p) cards
+
 
 updateDealer : Model -> List Card -> Player
 updateDealer model dealersDraw =
@@ -72,6 +74,7 @@ updateDealer model dealersDraw =
     in
     newDealer
 
+
 updatePlayer : Model -> List Card -> Player
 updatePlayer model playersDraw =
     let
@@ -81,6 +84,7 @@ updatePlayer model playersDraw =
             }
     in
     newPlayer
+
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -105,7 +109,6 @@ update msg model =
 
                 dealersDraw =
                     List.drop 2 initCard
-
             in
             ( { model
                 | deck = List.drop 4 model.deck
@@ -118,40 +121,45 @@ update msg model =
 
         Hit ->
             let
-                playersDraw = List.take 1 model.deck
-
+                playersDraw =
+                    List.take 1 model.deck
             in
-                ( { model |
-                    deck = List.drop 1 model.deck
-                  , player = updatePlayer model playersDraw
-                  }
-                , Cmd.none)
-
+            ( { model
+                | deck = List.drop 1 model.deck
+                , player = updatePlayer model playersDraw
+              }
+            , Cmd.none
+            )
 
         Stand ->
             let
-                tailwithDefault : List Card -> List Card
-                tailwithDefault array =
-                    List.tail array |>
-                        withDefault [{suit = Diamond, rank = Ace}]
+                tailWithDefault : List Card -> List Card
+                tailWithDefault array =
+                    List.tail array
+                        |> withDefault [ { suit = Diamond, rank = Ace } ]
 
                 dealDraw : List Card -> List Card -> List Card
                 dealDraw deck cards =
                     let
-                        currentPoints = calcPoints (Points 0) cards
+                        currentPoints =
+                            calcPoints (Points 0) cards
                     in
                     case currentPoints of
                         Points p ->
                             if p < 17 then
-                                dealDraw tailwithDefault deck <| (List.append cards <| List.take 1 deck)
+                                dealDraw (tailWithDefault deck) (List.append cards <| List.take 1 deck)
+
                             else
                                 cards
+
                         Bust ->
                             cards
 
+                dealersHands =
+                    dealDraw model.deck model.dealer.hands
 
-                dealersHands = dealDraw model.deck model.dealer.hands
-                currentDealersPoint = calcPoints (Points 0) dealersHands
+                currentDealersPoint =
+                    calcPoints (Points 0) dealersHands
 
                 judgeGames : Points -> Points -> States
                 judgeGames dealersPoint playersPoint =
@@ -160,42 +168,44 @@ update msg model =
                             case playersPoint of
                                 Bust ->
                                     Finish Draw
-                                Points pp ->
+
+                                Points _ ->
                                     Finish Win
 
                         Points dp ->
                             case playersPoint of
                                 Bust ->
                                     Finish Lose
+
                                 Points pp ->
                                     if dp < pp then
                                         Finish Win
+
                                     else if dp > pp then
                                         Finish Lose
+
                                     else
                                         Finish Draw
-
             in
-            ( { model |
-                    dealer = updateDealer model dealersHands
-                  , gameStates = judgeGames currentDealersPoint model.player.points
-            }
-            , Cmd.none)
+            ( { model
+                | dealer = updateDealer model <| List.drop 2 dealersHands
+                , gameStates = judgeGames currentDealersPoint model.player.points
+              }
+            , Cmd.none
+            )
 
         Reset ->
-            ( { model |
-                gameStates = Init
-              , dealer = { hands = [], points = Points 0 }
-              , player = { hands = [], points = Points 0 }
-            }
+            ( { model
+                | gameStates = Init
+                , dealer = { hands = [], points = Points 0 }
+                , player = { hands = [], points = Points 0 }
+              }
             , Cmd.map (always Shuffle) Cmd.none
             )
 
 
-
-
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.none
 
 
@@ -224,8 +234,17 @@ view model =
                     , class "stand"
                     ]
                     [ text "Stand" ]
+                , button
+                    [ onClick Reset
+                    , class "reset"
+                    ]
+                    [ text "Reset" ]
+                , br [] []
                 , text <| "Player : " ++ rankOfHandsToString model.player.hands
+                , text <| "Point : " ++ pointsToString model.player.points
+                , br [] []
                 , text <| "Dealer : " ++ rankOfHandsToString model.dealer.hands
+                , text <| "Point : " ++ pointsToString model.dealer.points
                 ]
 
             Finish judge ->
@@ -235,6 +254,12 @@ view model =
                     ]
                     [ text "Reset" ]
                 , text <| "You" ++ judgeToString judge
+                , br [] []
+                , text <| "Player : " ++ rankOfHandsToString model.player.hands
+                , text <| "Point : " ++ pointsToString model.player.points
+                , br [] []
+                , text <| "Dealer : " ++ rankOfHandsToString model.dealer.hands
+                , text <| "Point : " ++ pointsToString model.dealer.points
                 ]
 
 
@@ -243,6 +268,16 @@ rankOfHandsToString hands =
     List.map .rank hands
         |> List.map rankToString
         |> String.join " "
+
+
+pointsToString : Points -> String
+pointsToString points =
+    case points of
+        Points p ->
+            String.fromInt p
+
+        Bust ->
+            "Bust"
 
 
 judgeToString : Judge -> String
