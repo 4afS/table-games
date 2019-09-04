@@ -68,7 +68,7 @@ update msg model =
                         Points c ->
                             let
                                 rankPoint =
-                                    fromRank card.rank
+                                    rankToInt card.rank
                             in
                             if rankPoint + c > 21 then
                                 Bust
@@ -131,4 +131,58 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    div [] [ text "test" ]
+    div
+        [ class "main" ]
+    <|
+        case model.gameStates of
+            Init ->
+                [ button
+                    [ onClick Start
+                    , class "start"
+                    ]
+                    [ text "Start!" ]
+                ]
+
+            Playing ->
+                [ button
+                    [ onClick Hit
+                    , class "hit"
+                    ]
+                    [ text "Hit" ]
+                , button
+                    [ onClick Stand
+                    , class "stand"
+                    ]
+                    [ text "Stand" ]
+                , text <| "Player : " ++ rankOfHandsToString model.player.hands
+                , text <| "Dealer : " ++ rankOfHandsToString model.dealer.hands
+                ]
+
+            Finish judge ->
+                [ button
+                    [ onClick Reset
+                    , class "reset"
+                    ]
+                    [ text "Reset" ]
+                , text <| "You" ++ judgeToString judge
+                ]
+
+
+rankOfHandsToString : List Card -> String
+rankOfHandsToString hands =
+    List.map .rank hands
+        |> List.map rankToString
+        |> String.join " "
+
+
+judgeToString : Judge -> String
+judgeToString judge =
+    case judge of
+        Win ->
+            "Win"
+
+        Draw ->
+            "Draw"
+
+        Lose ->
+            "Lose"
