@@ -9,4 +9,5 @@ type Msg
     | Start
     | Hit
     | Stand
+    | Judgement
     | Reset

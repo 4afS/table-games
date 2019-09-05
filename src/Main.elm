@@ -2,6 +2,7 @@ module Main exposing (init, main)
 
 import Browser exposing (..)
 import Card exposing (..)
+import Cmd.Extra exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -13,7 +14,7 @@ import Random exposing (..)
 import Random.List exposing (..)
 import String
 import Types exposing (..)
-import Cmd.Extra exposing (..)
+
 
 main : Program () Model Msg
 main =
@@ -121,7 +122,7 @@ update msg model =
                     List.drop 2 initCard
             in
             ( { model
-                | deck = List.drop 4 model.deck
+                | deck = List.drop (2 * 2) model.deck
                 , gameStates = Playing
                 , dealer = updateDealer model dealersDraw
                 , player = updatePlayer model playersDraw
@@ -136,7 +137,6 @@ update msg model =
 
                 currentPlayersPoint =
                     calcPoints model.player.points playersDraw
-
             in
             case currentPlayersPoint of
                 Points p ->
@@ -152,9 +152,8 @@ update msg model =
                         | deck = List.drop 1 model.deck
                         , player = updatePlayer model playersDraw
                       }
-                    , perform Stand
+                    , perform Judgement
                     )
-
 
         Stand ->
             let
@@ -185,7 +184,15 @@ update msg model =
 
                 currentDealersPoint =
                     calcPoints (Points 0) dealersHands
+            in
+            ( { model
+                | dealer = updateDealer model <| List.drop 2 dealersHands
+              }
+            , perform Judgement
+            )
 
+        Judgement ->
+            let
                 judgeGames : Points -> Points -> States
                 judgeGames dealersPoint playersPoint =
                     case dealersPoint of
@@ -213,8 +220,7 @@ update msg model =
                                         Finish Draw
             in
             ( { model
-                | dealer = updateDealer model <| List.drop 2 dealersHands
-                , gameStates = judgeGames currentDealersPoint model.player.points
+                | gameStates = judgeGames model.dealer.points model.player.points
               }
             , Cmd.none
             )
