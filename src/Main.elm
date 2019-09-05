@@ -36,6 +36,19 @@ init _ =
     )
 
 
+cardToPoint : Card -> Int
+cardToPoint card =
+    let
+        rankAsInt =
+            rankToInt card.rank
+    in
+    if rankAsInt > 10 then
+        10
+
+    else
+        rankAsInt
+
+
 calcPoints_ : Card -> Points -> Points
 calcPoints_ card point =
     case point of
@@ -45,7 +58,7 @@ calcPoints_ card point =
         Points c ->
             let
                 rankPoint =
-                    rankToInt card.rank
+                    cardToPoint card
             in
             if rankPoint + c > 21 then
                 Bust

@@ -1,5 +1,6 @@
-module Card exposing (Card, Rank(..), Suit(..), generateDeck, rankToInt, rankToString, suitToInt, suitToString)
+module Card exposing (Card, Rank(..), Suit(..), cardToChar, generateDeck, rankToInt, rankToString, suitToInt, suitToString)
 
+import Char exposing (fromCode)
 import Util
 
 
@@ -98,13 +99,13 @@ rankToInt rank =
             10
 
         Jack ->
-            10
+            11
 
         Queen ->
-            10
+            12
 
         King ->
-            10
+            13
 
 
 rankToString : Rank -> String
@@ -180,3 +181,35 @@ suitToString suit =
 
         Heart ->
             "Heart"
+
+
+cardToChar : Card -> Char
+cardToChar card =
+    case card.suit of
+        Spade ->
+            let
+                base =
+                    0x0001F0A0
+            in
+            fromCode <| base + rankToInt card.rank
+
+        Diamond ->
+            let
+                base =
+                    0x0001F0C0
+            in
+            fromCode <| base + rankToInt card.rank
+
+        Club ->
+            let
+                base =
+                    0x0001F0D0
+            in
+            fromCode <| base + rankToInt card.rank
+
+        Heart ->
+            let
+                base =
+                    0x0001F0B0
+            in
+            fromCode <| base + rankToInt card.rank
