@@ -185,31 +185,42 @@ suitToString suit =
 
 cardToChar : Card -> Char
 cardToChar card =
+    let
+        asInt =
+            rankToInt card.rank
+
+        rankAdjustedForUnicode =
+            if asInt >= 12 then
+                asInt + 1
+
+            else
+                asInt
+    in
     case card.suit of
         Spade ->
             let
                 base =
                     0x0001F0A0
             in
-            fromCode <| base + rankToInt card.rank
+            fromCode <| base + rankAdjustedForUnicode
 
         Diamond ->
             let
                 base =
                     0x0001F0C0
             in
-            fromCode <| base + rankToInt card.rank
+            fromCode <| base + rankAdjustedForUnicode
 
         Club ->
             let
                 base =
                     0x0001F0D0
             in
-            fromCode <| base + rankToInt card.rank
+            fromCode <| base + rankAdjustedForUnicode
 
         Heart ->
             let
                 base =
                     0x0001F0B0
             in
-            fromCode <| base + rankToInt card.rank
+            fromCode <| base + rankAdjustedForUnicode

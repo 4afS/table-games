@@ -250,10 +250,14 @@ view model =
                     ]
                     [ text "Reset" ]
                 , br [] []
-                , text <| "Player : " ++ rankOfHandsToString model.player.hands
+                , span
+                    [ class "hands" ]
+                    [ text <| "Player : " ++ cardsToString model.player.hands ]
                 , text <| "Point : " ++ pointsToString model.player.points
                 , br [] []
-                , text <| "Dealer : " ++ rankOfHandsToString model.dealer.hands
+                , span
+                    [ class "hands" ]
+                    [ text <| "Dealer : " ++ cardsToString model.dealer.hands ]
                 , text <| "Point : " ++ pointsToString model.dealer.points
                 ]
 
@@ -265,19 +269,16 @@ view model =
                     [ text "Reset" ]
                 , text <| "You" ++ judgeToString judge
                 , br [] []
-                , text <| "Player : " ++ rankOfHandsToString model.player.hands
+                , span
+                    [ class "hands" ]
+                    [ text <| "Player : " ++ cardsToString model.player.hands ]
                 , text <| "Point : " ++ pointsToString model.player.points
                 , br [] []
-                , text <| "Dealer : " ++ rankOfHandsToString model.dealer.hands
+                , span
+                    [ class "hands" ]
+                    [ text <| "Dealer : " ++ cardsToString model.dealer.hands ]
                 , text <| "Point : " ++ pointsToString model.dealer.points
                 ]
-
-
-rankOfHandsToString : List Card -> String
-rankOfHandsToString hands =
-    List.map .rank hands
-        |> List.map rankToString
-        |> String.join " "
 
 
 pointsToString : Points -> String
@@ -301,3 +302,8 @@ judgeToString judge =
 
         Lose ->
             "Lose"
+
+
+cardsToString : List Card -> String
+cardsToString cards =
+    String.join " " <| List.map (String.fromChar << cardToChar) cards
