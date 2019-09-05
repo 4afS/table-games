@@ -13,7 +13,7 @@ import Random exposing (..)
 import Random.List exposing (..)
 import String
 import Types exposing (..)
-
+import Cmd.Extra exposing (..)
 
 main : Program () Model Msg
 main =
@@ -120,13 +120,28 @@ update msg model =
             let
                 playersDraw =
                     List.take 1 model.deck
+
+                currentPlayersPoint =
+                    calcPoints model.player.points playersDraw
+
             in
-            ( { model
-                | deck = List.drop 1 model.deck
-                , player = updatePlayer model playersDraw
-              }
-            , Cmd.none
-            )
+            case currentPlayersPoint of
+                Points p ->
+                    ( { model
+                        | deck = List.drop 1 model.deck
+                        , player = updatePlayer model playersDraw
+                      }
+                    , Cmd.none
+                    )
+
+                Bust ->
+                    ( { model
+                        | deck = List.drop 1 model.deck
+                        , player = updatePlayer model playersDraw
+                      }
+                    , perform Stand
+                    )
+
 
         Stand ->
             let
