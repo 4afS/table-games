@@ -28,11 +28,11 @@ main =
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { dealer = { hands = [], points = Points 0 }
-      , deck = generateDeck
+      , deck = []
       , gameStates = Init
       , player = { hands = [], points = Points 0 }
       }
-    , Cmd.map (always Shuffle) Cmd.none
+    , generate ConstructDeck (shuffle generateDeck)
     )
 
 
@@ -102,9 +102,6 @@ updatePlayer model playersDraw =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Shuffle ->
-            ( model, generate ConstructDeck (shuffle model.deck) )
-
         ConstructDeck shuffledDeck ->
             ( { model
                 | deck = shuffledDeck
@@ -213,7 +210,7 @@ update msg model =
                 , dealer = { hands = [], points = Points 0 }
                 , player = { hands = [], points = Points 0 }
               }
-            , Cmd.map (always Shuffle) Cmd.none
+            , generate ConstructDeck (shuffle generateDeck)
             )
 
 
