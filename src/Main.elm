@@ -122,7 +122,7 @@ update msg model =
                     List.drop 2 initCard
             in
             ( { model
-                | deck = List.drop 4 model.deck
+                | deck = List.drop (2 * 2) model.deck
                 , gameStates = Playing
                 , dealer = updateDealer model dealersDraw
                 , player = updatePlayer model playersDraw
@@ -139,7 +139,7 @@ update msg model =
                     calcPoints model.player.points playersDraw
             in
             case currentPlayersPoint of
-                Points p ->
+                Points _ ->
                     ( { model
                         | deck = List.drop 1 model.deck
                         , player = updatePlayer model playersDraw
@@ -152,7 +152,7 @@ update msg model =
                         | deck = List.drop 1 model.deck
                         , player = updatePlayer model playersDraw
                       }
-                    , perform Stand
+                    , perform Judgement
                     )
 
         Stand ->
@@ -181,10 +181,15 @@ update msg model =
 
                 dealersHands =
                     dealDraw model.deck model.dealer.hands
+            in
+            ( { model
+                | dealer = updateDealer model <| List.drop 2 dealersHands
+              }
+            , perform Judgement
+            )
 
-                currentDealersPoint =
-                    calcPoints (Points 0) dealersHands
-
+        Judgement ->
+            let
                 judgeGames : Points -> Points -> States
                 judgeGames dealersPoint playersPoint =
                     case dealersPoint of
@@ -212,8 +217,7 @@ update msg model =
                                         Finish Draw
             in
             ( { model
-                | dealer = updateDealer model <| List.drop 2 dealersHands
-                , gameStates = judgeGames currentDealersPoint model.player.points
+                | gameStates = judgeGames model.dealer.points model.player.points
               }
             , Cmd.none
             )
