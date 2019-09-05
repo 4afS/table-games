@@ -2,6 +2,7 @@ module Main exposing (init, main)
 
 import Browser exposing (..)
 import Card exposing (..)
+import Cmd.Extra exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -13,7 +14,7 @@ import Random exposing (..)
 import Random.List exposing (..)
 import String
 import Types exposing (..)
-import Cmd.Extra exposing (..)
+
 
 main : Program () Model Msg
 main =
@@ -136,7 +137,6 @@ update msg model =
 
                 currentPlayersPoint =
                     calcPoints model.player.points playersDraw
-
             in
             case currentPlayersPoint of
                 Points p ->
@@ -154,7 +154,6 @@ update msg model =
                       }
                     , perform Stand
                     )
-
 
         Stand ->
             let
@@ -272,7 +271,7 @@ view model =
                 , br [] []
                 , span
                     [ class "hands" ]
-                    [ text <| "Dealer : " ++ cardsToString model.dealer.hands ]
+                    [ text <| "Dealer : " ++ cardsToString (List.take 1 model.dealer.hands) ++ String.fromChar backOfCard ]
                 , text <| "Point : " ++ pointsToString model.dealer.points
                 ]
 
@@ -321,4 +320,4 @@ judgeToString judge =
 
 cardsToString : List Card -> String
 cardsToString cards =
-    String.join " " <| List.map (String.fromChar << cardToChar) cards
+    String.concat <| List.map (String.fromChar << cardToChar) cards

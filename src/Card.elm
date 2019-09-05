@@ -1,4 +1,4 @@
-module Card exposing (Card, Rank(..), Suit(..), cardToChar, generateDeck, rankToInt, rankToString, suitToInt, suitToString)
+module Card exposing (Card, Rank(..), Suit(..), backOfCard, cardToChar, generateDeck, rankToInt, rankToString, suitToInt, suitToString)
 
 import Char exposing (fromCode)
 import Util
@@ -224,3 +224,8 @@ cardToChar card =
                     0x0001F0B0
             in
             fromCode <| base + rankAdjustedForUnicode
+
+
+backOfCard : Char
+backOfCard =
+    fromCode 0x0001F0A0
